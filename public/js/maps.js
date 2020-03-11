@@ -1,4 +1,8 @@
-const markImageSrc = "http://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
+const greenMarker = "/img/greenMarker.png";
+const yellowMarker = "/img/yellowMarker.png";
+const redMarker = "/img/redMarker.png";
+const greyMarker = "/img/greyMarker.png";
+
 const apiUrl = 'https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json';
 // ?lat=37.3501761&lng=127.1151262&m=1000
 
@@ -38,28 +42,42 @@ kakao.maps.event.addListener(map, 'dragend', function() {
 
 function displayMarker(obj) {
     let stores = obj['stores'];
+    console.log(stores);
     stores.forEach(function (store) {
-        // if(store.remain_cnt > 0) {
-            let imageSize = new kakao.maps.Size(24, 35);
-            let markerImage = new kakao.maps.MarkerImage(markImageSrc, imageSize);
-            let marker = new kakao.maps.Marker({
-                map: map,
-                position: new kakao.maps.LatLng(store.lat, store.lng),
-                image : markerImage
-            });
+        let markerPath = getMarker(store.remain_stat);
+        let imageSize = new kakao.maps.Size(24, 35);
+        let markerImage = new kakao.maps.MarkerImage(markerPath, imageSize);
+        let marker = new kakao.maps.Marker({
+            map: map,
+            position: new kakao.maps.LatLng(store.lat, store.lng),
+            image : markerImage
+        });
 
-            let overlay = new kakao.maps.CustomOverlay({
-                position: marker.getPosition()
-            });
+        let overlay = new kakao.maps.CustomOverlay({
+            position: marker.getPosition()
+        });
 
-            let content = getOverlayContent(store, overlay);
+        let content = getOverlayContent(store, overlay);
 
-            overlay.setContent(content);
-            kakao.maps.event.addListener(marker, 'click', function() {
-                overlay.setMap(map);
-            });
-        // }
+        overlay.setContent(content);
+        kakao.maps.event.addListener(marker, 'click', function() {
+            overlay.setMap(map);
+        });
     });
+}
+
+function getMarker(str) {
+    switch (str) {
+        case 'plenty' :
+            return greenMarker;
+        case 'some' :
+            return yellowMarker;
+        case 'few' :
+            return redMarker;
+        case 'empty' :
+        default :
+            return greyMarker;
+    }
 }
 
 function getOverlayContent(store, overlay) {
@@ -79,19 +97,13 @@ function getOverlayContent(store, overlay) {
 
     let body = document.createElement('div');
     body.classList.add('body');
-
-    let stock = document.createElement('div');
-    stock.appendChild(document.createTextNode(`입고 : ${store.stock_cnt}개`));
-    let remain = document.createElement('div');
-    remain.appendChild(document.createTextNode(`재고 : ${store.remain_cnt}개`));
+    body.appendChild(document.createTextNode(`입고 시간 : ${store.stock_at}`));
 
     content.appendChild(info);
     info.appendChild(title);
     info.appendChild(body);
 
     title.appendChild(closeBtn);
-    body.appendChild(stock);
-    body.appendChild(remain);
 
     return content;
 }
