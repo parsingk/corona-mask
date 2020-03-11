@@ -23,7 +23,8 @@ function setCurrentPosition() {
             centerLng = position.coords.longitude; // 경도
 
             let locPosition = new kakao.maps.LatLng(centerLat, centerLng);
-            let query = `?lat=${centerLat}&lng=${centerLng}&m=1000`;
+            // let query = `?lat=${centerLat}&lng=${centerLng}&m=1000`;
+            let query = '?lat=' + centerLat + '&lng=' + centerLng + '&m=1000';
 
             httpGetAsync(apiUrl + query, displayMarker);
             map.setCenter(locPosition);
@@ -36,7 +37,8 @@ kakao.maps.event.addListener(map, 'dragend', function() {
     centerLat = latlng.getLat();
     centerLng = latlng.getLng();
 
-    let query = `?lat=${centerLat}&lng=${centerLng}&m=1000`;
+    // let query = `?lat=${centerLat}&lng=${centerLng}&m=1000`;
+    let query = '?lat=' + centerLat + '&lng=' + centerLng + '&m=1000';
     httpGetAsync(apiUrl + query, displayMarker);
 });
 
@@ -97,7 +99,7 @@ function getOverlayContent(store, overlay) {
 
     let body = document.createElement('div');
     body.classList.add('body');
-    body.appendChild(document.createTextNode(`입고 시간 : ${store.stock_at}`));
+    body.appendChild(document.createTextNode('입고 시간 : ' + store.stock_at));
 
     content.appendChild(info);
     info.appendChild(title);
