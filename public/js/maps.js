@@ -4,7 +4,6 @@ const redMarker = "/img/redMarker.png";
 const greyMarker = "/img/greyMarker.png";
 
 const apiUrl = 'https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json';
-// ?lat=37.3501761&lng=127.1151262&m=1000
 
 let centerLat = 37.394914;
 let centerLng = 127.1100797;
@@ -44,7 +43,7 @@ kakao.maps.event.addListener(map, 'dragend', function() {
 
 function displayMarker(obj) {
     let stores = obj['stores'];
-    console.log(stores);
+
     stores.forEach(function (store) {
         let markerPath = getMarker(store.remain_stat);
         let imageSize = new kakao.maps.Size(24, 35);

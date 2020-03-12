@@ -1,0 +1,9 @@
+{
+  "presets": ["es2015", "minify"],
+  "plugins": ["uglify:after"],
+  "env": {
+    "production": {
+      "presets": ["minify"]
+    }
+  }
+}
