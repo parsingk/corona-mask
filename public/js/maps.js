@@ -98,7 +98,7 @@ function getOverlayContent(store, overlay) {
 
     let body = document.createElement('div');
     body.classList.add('body');
-    body.appendChild(document.createTextNode('입고 시간 : ' + store.stock_at));
+    body.appendChild(document.createTextNode('입고 시간 : ' + getStockAt(store.stock_at)));
 
     content.appendChild(info);
     info.appendChild(title);
@@ -107,6 +107,13 @@ function getOverlayContent(store, overlay) {
     title.appendChild(closeBtn);
 
     return content;
+}
+
+function getStockAt(stockAt) {
+    if(stockAt == null || stockAt == 'null' || stockAt === undefined)
+        return '입고 대기';
+
+    return stockAt;
 }
 
 function httpGet(theUrl)
