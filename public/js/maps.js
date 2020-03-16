@@ -3,7 +3,13 @@ const yellowMarker = "/img/yellowMarker.png";
 const redMarker = "/img/redMarker.png";
 const greyMarker = "/img/greyMarker.png";
 
+const green = 'lawngreen';
+const yellow = '#ffc400';
+const red = 'red';
+const grey = 'grey';
+
 const apiUrl = 'https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json';
+const range = '1000';
 
 let centerLat = 37.394914;
 let centerLng = 127.1100797;
@@ -14,6 +20,7 @@ let options = { //지도를 생성할 때 필요한 기본 옵션
 };
 
 let map = new kakao.maps.Map(container, options); //지도 생성 및 객체 리턴
+let markers = [];
 
 function setCurrentPosition() {
     if (navigator.geolocation) {
@@ -23,7 +30,7 @@ function setCurrentPosition() {
 
             let locPosition = new kakao.maps.LatLng(centerLat, centerLng);
             // let query = `?lat=${centerLat}&lng=${centerLng}&m=1000`;
-            let query = '?lat=' + centerLat + '&lng=' + centerLng + '&m=1000';
+            let query = '?lat=' + centerLat + '&lng=' + centerLng + '&m=' + range;
 
             httpGetAsync(apiUrl + query, displayMarker);
             map.setCenter(locPosition);
@@ -37,20 +44,42 @@ kakao.maps.event.addListener(map, 'dragend', function() {
     centerLng = latlng.getLng();
 
     // let query = `?lat=${centerLat}&lng=${centerLng}&m=1000`;
-    let query = '?lat=' + centerLat + '&lng=' + centerLng + '&m=1000';
+    let query = '?lat=' + centerLat + '&lng=' + centerLng + '&m=' + range;
     httpGetAsync(apiUrl + query, displayMarker);
 });
 
+function isMarkerOnMap(lat, lng, arr = []) {
+    let find = arr.find(o => o.lat == lat && o.lng == lng);
+    if(find !== undefined) {
+        lng = lng + 0.000065;
+        return isMarkerOnMap(lat, lng, arr);
+    }
+
+    return parseFloat(lng.toFixed(7));
+}
+
 function displayMarker(obj) {
     let stores = obj['stores'];
+    let latLngArray = [];
+    let lat = null;
+    let lng = null;
 
+    markers.forEach(function (m) {
+        m.setMap(null);
+    });
+
+    // console.log(stores);
     stores.forEach(function (store) {
+        lat = store.lat;
+        lng = store.lng;
+        lng = isMarkerOnMap(lat, lng, latLngArray);
+
         let markerPath = getMarker(store.remain_stat);
         let imageSize = new kakao.maps.Size(24, 35);
         let markerImage = new kakao.maps.MarkerImage(markerPath, imageSize);
         let marker = new kakao.maps.Marker({
             map: map,
-            position: new kakao.maps.LatLng(store.lat, store.lng),
+            position: new kakao.maps.LatLng(lat, lng),
             image : markerImage
         });
 
@@ -59,12 +88,31 @@ function displayMarker(obj) {
         });
 
         let content = getOverlayContent(store, overlay);
-
         overlay.setContent(content);
+
+        latLngArray.push({
+            lat : lat,
+            lng : lng
+        });
+        markers.push(marker);
         kakao.maps.event.addListener(marker, 'click', function() {
             overlay.setMap(map);
         });
     });
+}
+
+function getColor(str) {
+    switch (str) {
+        case 'plenty' :
+            return green;
+        case 'some' :
+            return yellow;
+        case 'few' :
+            return red;
+        case 'empty' :
+        default :
+            return grey;
+    }
 }
 
 function getMarker(str) {
@@ -89,7 +137,10 @@ function getOverlayContent(store, overlay) {
     info.classList.add('info');
 
     let title = document.createElement('div');
+    let color = getColor(store.remain_stat);
     title.classList.add('title');
+    title.style.backgroundColor = color;
+    title.style.color = color === grey || color === red ? 'white' : 'black';
     title.appendChild(document.createTextNode(store.name));
 
     let closeBtn = document.createElement('div');
