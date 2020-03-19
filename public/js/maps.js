@@ -68,7 +68,8 @@ function displayMarker(obj) {
         m.setMap(null);
     });
 
-    // console.log(stores);
+    markers = [];
+
     stores.forEach(function (store) {
         lat = store.lat;
         lng = store.lng;
